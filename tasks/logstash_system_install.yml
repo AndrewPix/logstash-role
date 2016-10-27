@@ -1,0 +1,17 @@
+
+- name: Backup current start.options file
+  # because backup options below would create a new backup file each time
+  copy: src="{{ logstash_settings }}/startup.options" dest="{{ logstash_settings }}/startup.options.{{ansible_date_time.iso8601}}" remote_src=yes
+
+- name: Update startup.options files with handled default variables
+  lineinfile: dest="{{logstash_settings}}/startup.options" regexp="^(LS_HOME).*$" line="\1={{ logstash_home }}" backrefs=yes
+- lineinfile: dest="{{logstash_settings}}/startup.options" regexp="^(LS_SETTINGS_DIR).*$" line="\1={{ logstash_settings }}" backrefs=yes
+
+- name: Update startup.options files with custom defaults
+  lineinfile: dest="{{logstash_settings}}/startup.options" regexp="^({{ item | regex_replace('^(.*)=.*$', '\\1')}}).*$" line="{{ item }}"
+  with_items: "{{ logstash_defaults }}"
+
+- name: Setup logstash service
+  shell: '{{ logstash_home }}/bin/system-install {{ logstash_settings }}/startup.options'
+  notify:
+   - restart logstash

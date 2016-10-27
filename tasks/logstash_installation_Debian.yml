@@ -22,15 +22,5 @@
   apt: pkg=logstash
        update_cache=yes
        state=latest
-  notify: 
-   - start logstash
-
-- name: Configure default settings for Logstash
-  template: src=defaults.conf.j2
-            dest={{ defaults_Debian }}
-            owner=root
-            group=root
-            mode=0644
-            backup=yes
   notify:
-   - restart logstash
+   - start logstash
