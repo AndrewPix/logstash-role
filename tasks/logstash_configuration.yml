@@ -14,25 +14,30 @@
             mode=0644
 
 - name: Validate and copy Logstash Input Configuration
-  template: src=input.conf.j2
-            dest={{ logstash_conf_dir }}input.conf
-            owner=root
-            group=root
-            mode=0644
-            validate='{{ logstash_home }}/bin/logstash --path.settings {{ logstash_settings }} -tf %s'
-
-- name: Validate and copy Logstash Filter Configuration
-  template: src=filters.conf.j2
-            dest={{ logstash_conf_dir }}filters.conf
+  template: src=01-beats-input.conf.j2
+            dest={{ logstash_conf_dir }}01-beats-input.conf
             owner=root
             group=root
             mode=0644
             validate='{{ logstash_home }}/bin/logstash --path.settings {{ logstash_settings }} -tf %s'
 
 - name: Validate and copy Logstash Output Configuration
-  template: src=output.conf.j2
-            dest={{ logstash_conf_dir }}output.conf
+  template: src=30-elasticsearch-output.conf.j2
+            dest={{ logstash_conf_dir }}30-elasticsearch-output.conf
             owner=root
             group=root
             mode=0644
             validate='{{ logstash_home }}/bin/logstash --path.settings {{ logstash_settings }} -tf %s'
+
+- name: Create Logstash filters.
+  copy:
+    src: "filters/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 10-nginx.conf
+    - 11-django.conf
+    - 12-counter.conf
+  notify: restart logstash

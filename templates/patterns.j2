@@ -1,3 +1,4 @@
-{% if logstash_patterns is defined %}
-{{ logstash_patterns }}
-{% endif %}
+DJANGO_LOGLEVEL (DEBUG|INFO|ERROR|WARNING|CRITICAL)
+DJANGO_LOG %{DJANGO_LOGLEVEL:log_level}\s+%{TIMESTAMP_ISO8601:log_timestamp}\s+%{TZ:log_tz}\s+%{NOTSPACE:logger}\s+%{WORD:module}\s+%{POSINT:proc_id}\s+%{GREEDYDATA:content}
+
+COUNTER %{WORD:log_level}\s+%{TIMESTAMP_ISO8601:log_timestamp}\s+%{WORD:counter} +%{GREEDYDATA:content}
